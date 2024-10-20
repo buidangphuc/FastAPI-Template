@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from fastapi import Request
 
 from backend.common.exception.errors import ServerError
@@ -19,7 +17,7 @@ class RequestPermission:
         self.value = value
 
     async def __call__(self, request: Request):
-        if settings.PERMISSION_MODE == 'role-menu':
+        if settings.PERMISSION_MODE == "role-menu":
             if not isinstance(self.value, str):
                 raise ServerError
             # 附加权限标识

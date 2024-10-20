@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from pydantic import ConfigDict, Field
@@ -12,7 +10,8 @@ from backend.common.schema import SchemaBase
 class RoleSchemaBase(SchemaBase):
     name: str
     data_scope: RoleDataScopeType = Field(
-        default=RoleDataScopeType.custom, description='权限范围（1：全部数据权限 2：自定义数据权限）'
+        default=RoleDataScopeType.custom,
+        description="Permission scope (1: All data permissions 2: Custom data permissions",
     )
     status: StatusType = Field(default=StatusType.enable)
     remark: str | None = None

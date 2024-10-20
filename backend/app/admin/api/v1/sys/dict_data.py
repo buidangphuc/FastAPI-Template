@@ -1,10 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
 
-from backend.app.admin.schema.dict_data import CreateDictDataParam, GetDictDataListDetails, UpdateDictDataParam
+from backend.app.admin.schema.dict_data import (
+    CreateDictDataParam,
+    GetDictDataListDetails,
+    UpdateDictDataParam,
+)
 from backend.app.admin.service.dict_data_service import dict_data_service
 from backend.common.pagination import DependsPagination, paging_data
 from backend.common.response.response_schema import ResponseModel, response_base
@@ -17,7 +19,7 @@ from backend.utils.serializers import select_as_dict
 router = APIRouter()
 
 
-@router.get('/{pk}', summary='获取字典详情', dependencies=[DependsJwtAuth])
+@router.get("/{pk}", summary="Get dictionary details", dependencies=[DependsJwtAuth])
 async def get_dict_data(pk: Annotated[int, Path(...)]) -> ResponseModel:
     dict_data = await dict_data_service.get(pk=pk)
     data = GetDictDataListDetails(**select_as_dict(dict_data))
@@ -25,8 +27,8 @@ async def get_dict_data(pk: Annotated[int, Path(...)]) -> ResponseModel:
 
 
 @router.get(
-    '',
-    summary='（模糊条件）分页获取所有字典',
+    "",
+    summary="Get all dictionary display trees",
     dependencies=[
         DependsJwtAuth,
         DependsPagination,
@@ -38,16 +40,18 @@ async def get_pagination_dict_datas(
     value: Annotated[str | None, Query()] = None,
     status: Annotated[int | None, Query()] = None,
 ) -> ResponseModel:
-    dict_data_select = await dict_data_service.get_select(label=label, value=value, status=status)
+    dict_data_select = await dict_data_service.get_select(
+        label=label, value=value, status=status
+    )
     page_data = await paging_data(db, dict_data_select, GetDictDataListDetails)
     return response_base.success(data=page_data)
 
 
 @router.post(
-    '',
-    summary='创建字典',
+    "",
+    summary="Create dictionary",
     dependencies=[
-        Depends(RequestPermission('sys:dict:data:add')),
+        Depends(RequestPermission("sys:dict:data:add")),
         DependsRBAC,
     ],
 )
@@ -57,14 +61,16 @@ async def create_dict_data(obj: CreateDictDataParam) -> ResponseModel:
 
 
 @router.put(
-    '/{pk}',
-    summary='更新字典',
+    "/{pk}",
+    summary="Update dictionary",
     dependencies=[
-        Depends(RequestPermission('sys:dict:data:edit')),
+        Depends(RequestPermission("sys:dict:data:edit")),
         DependsRBAC,
     ],
 )
-async def update_dict_data(pk: Annotated[int, Path(...)], obj: UpdateDictDataParam) -> ResponseModel:
+async def update_dict_data(
+    pk: Annotated[int, Path(...)], obj: UpdateDictDataParam
+) -> ResponseModel:
     count = await dict_data_service.update(pk=pk, obj=obj)
     if count > 0:
         return response_base.success()
@@ -72,10 +78,10 @@ async def update_dict_data(pk: Annotated[int, Path(...)], obj: UpdateDictDataPar
 
 
 @router.delete(
-    '',
-    summary='（批量）删除字典',
+    "",
+    summary="Delete dictionary",
     dependencies=[
-        Depends(RequestPermission('sys:dict:data:del')),
+        Depends(RequestPermission("sys:dict:data:del")),
         DependsRBAC,
     ],
 )

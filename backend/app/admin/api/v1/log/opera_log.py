@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
@@ -7,7 +5,8 @@ from fastapi import APIRouter, Depends, Query
 from backend.app.admin.schema.opera_log import GetOperaLogListDetails
 from backend.app.admin.service.opera_log_service import opera_log_service
 from backend.common.pagination import DependsPagination, paging_data
-from backend.common.response.response_schema import ResponseModel, response_base
+from backend.common.response.response_schema import (ResponseModel,
+                                                     response_base)
 from backend.common.security.jwt import DependsJwtAuth
 from backend.common.security.permission import RequestPermission
 from backend.common.security.rbac import DependsRBAC
@@ -18,7 +17,7 @@ router = APIRouter()
 
 @router.get(
     '',
-    summary='（模糊条件）分页获取操作日志',
+    summary='Get operation logs',
     dependencies=[
         DependsJwtAuth,
         DependsPagination,
@@ -37,7 +36,7 @@ async def get_pagination_opera_logs(
 
 @router.delete(
     '',
-    summary='（批量）删除操作日志',
+    summary='Delete operation log',
     dependencies=[
         Depends(RequestPermission('log:opera:del')),
         DependsRBAC,
@@ -52,7 +51,7 @@ async def delete_opera_log(pk: Annotated[list[int], Query(...)]) -> ResponseMode
 
 @router.delete(
     '/all',
-    summary='清空操作日志',
+    summary='Delete all operation logs',
     dependencies=[
         Depends(RequestPermission('log:opera:empty')),
         DependsRBAC,

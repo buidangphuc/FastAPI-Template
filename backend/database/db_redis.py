@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import sys
 
 from redis.asyncio import Redis
@@ -10,6 +8,7 @@ from backend.core.conf import settings
 
 
 class RedisCli(Redis):
+
     def __init__(self):
         super(RedisCli, self).__init__(
             host=settings.REDIS_HOST,
@@ -17,37 +16,37 @@ class RedisCli(Redis):
             password=settings.REDIS_PASSWORD,
             db=settings.REDIS_DATABASE,
             socket_timeout=settings.REDIS_TIMEOUT,
-            decode_responses=True,  # 转码 utf-8
+            decode_responses=True,
         )
 
     async def open(self):
         """
-        触发初始化连接
+        Trigger initial connection
 
         :return:
         """
         try:
             await self.ping()
         except TimeoutError:
-            log.error('❌ 数据库 redis 连接超时')
+            log.error("❌ Database redis connection timeout")
             sys.exit()
         except AuthenticationError:
-            log.error('❌ 数据库 redis 连接认证失败')
+            log.error("❌ Database redis authentication failed")
             sys.exit()
         except Exception as e:
-            log.error('❌ 数据库 redis 连接异常 {}', e)
+            log.error("❌ Database redis connection exception {}", e)
             sys.exit()
 
     async def delete_prefix(self, prefix: str, exclude: str | list = None):
         """
-        删除指定前缀的所有key
+        Delete keys by prefix
 
         :param prefix:
         :param exclude:
         :return:
         """
         keys = []
-        async for key in self.scan_iter(match=f'{prefix}*'):
+        async for key in self.scan_iter(match=f"{prefix}*"):
             if isinstance(exclude, str):
                 if key != exclude:
                     keys.append(key)
@@ -60,5 +59,5 @@ class RedisCli(Redis):
             await self.delete(*keys)
 
 
-# 创建 redis 客户端实例
+# Redis Client
 redis_client = RedisCli()

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from pydantic import ConfigDict, Field
@@ -10,8 +8,8 @@ from backend.common.schema import SchemaBase
 
 class ApiSchemaBase(SchemaBase):
     name: str
-    method: MethodType = Field(default=MethodType.GET, description='请求方法')
-    path: str = Field(..., description='api路径')
+    method: MethodType = Field(default=MethodType.GET, description="Request method")
+    path: str = Field(..., description="Request path")
     remark: str | None = None
 
 

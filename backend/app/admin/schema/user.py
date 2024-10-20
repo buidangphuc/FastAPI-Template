@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from pydantic import ConfigDict, EmailStr, Field, HttpUrl, model_validator
@@ -22,21 +20,21 @@ class AuthLoginParam(AuthSchemaBase):
 
 class RegisterUserParam(AuthSchemaBase):
     nickname: str | None = None
-    email: EmailStr = Field(..., examples=['user@example.com'])
+    email: EmailStr = Field(..., examples=["user@example.com"])
 
 
 class AddUserParam(AuthSchemaBase):
     dept_id: int
     roles: list[int]
     nickname: str | None = None
-    email: EmailStr = Field(..., examples=['user@example.com'])
+    email: EmailStr = Field(..., examples=["user@example.com"])
 
 
 class UserInfoSchemaBase(SchemaBase):
     dept_id: int | None = None
     username: str
     nickname: str
-    email: EmailStr = Field(..., examples=['user@example.com'])
+    email: EmailStr = Field(..., examples=["user@example.com"])
     phone: CustomPhoneNumber | None = None
 
 
@@ -49,7 +47,7 @@ class UpdateUserRoleParam(SchemaBase):
 
 
 class AvatarParam(SchemaBase):
-    url: HttpUrl = Field(..., description='头像 http 地址')
+    url: HttpUrl = Field(..., description="Avatar URL")
 
 
 class GetUserInfoNoRelationDetail(UserInfoSchemaBase):
@@ -80,9 +78,9 @@ class GetCurrentUserInfoDetail(GetUserInfoListDetails):
     dept: GetDeptListDetails | str | None = None
     roles: list[GetRoleListDetails] | list[str] | None = None
 
-    @model_validator(mode='after')
+    @model_validator(mode="after")
     def handel(self) -> Self:
-        """处理部门和角色"""
+        """Process the data after the model is validated."""
         dept = self.dept
         if dept:
             self.dept = dept.name  # type: ignore

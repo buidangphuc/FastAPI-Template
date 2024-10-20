@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from uuid import UUID
 
 from sqlalchemy import Select
@@ -19,6 +17,7 @@ from backend.database.db_mysql import async_db_session
 
 
 class CasbinService:
+
     @staticmethod
     async def get_casbin_list(*, ptype: str, sub: str) -> Select:
         return await casbin_dao.get_list(ptype, sub)
@@ -27,7 +26,7 @@ class CasbinService:
     async def get_policy_list(*, role: int | None = None) -> list:
         enforcer = await rbac.enforcer()
         if role is not None:
-            data = enforcer.get_filtered_named_policy('p', 0, str(role))
+            data = enforcer.get_filtered_named_policy("p", 0, str(role))
         else:
             data = enforcer.get_policy()
         return data
@@ -37,7 +36,7 @@ class CasbinService:
         enforcer = await rbac.enforcer()
         data = await enforcer.add_policy(p.sub, p.path, p.method)
         if not data:
-            raise errors.ForbiddenError(msg='权限已存在')
+            raise errors.ForbiddenError(msg="Permission already exists")
         return data
 
     @staticmethod
@@ -45,7 +44,7 @@ class CasbinService:
         enforcer = await rbac.enforcer()
         data = await enforcer.add_policies([list(p.model_dump().values()) for p in ps])
         if not data:
-            raise errors.ForbiddenError(msg='权限已存在')
+            raise errors.ForbiddenError(msg="Permission already exists")
         return data
 
     @staticmethod
@@ -53,15 +52,20 @@ class CasbinService:
         enforcer = await rbac.enforcer()
         _p = enforcer.has_policy(old.sub, old.path, old.method)
         if not _p:
-            raise errors.NotFoundError(msg='权限不存在')
-        data = await enforcer.update_policy([old.sub, old.path, old.method], [new.sub, new.path, new.method])
+            raise errors.NotFoundError(msg="Permission does not exist")
+        data = await enforcer.update_policy(
+            [old.sub, old.path, old.method], [new.sub, new.path, new.method]
+        )
         return data
 
     @staticmethod
-    async def update_policies(*, old: list[UpdatePolicyParam], new: list[UpdatePolicyParam]) -> bool:
+    async def update_policies(
+        *, old: list[UpdatePolicyParam], new: list[UpdatePolicyParam]
+    ) -> bool:
         enforcer = await rbac.enforcer()
         data = await enforcer.update_policies(
-            [list(o.model_dump().values()) for o in old], [list(n.model_dump().values()) for n in new]
+            [list(o.model_dump().values()) for o in old],
+            [list(n.model_dump().values()) for n in new],
         )
         return data
 
@@ -70,16 +74,18 @@ class CasbinService:
         enforcer = await rbac.enforcer()
         _p = enforcer.has_policy(p.sub, p.path, p.method)
         if not _p:
-            raise errors.NotFoundError(msg='权限不存在')
+            raise errors.NotFoundError(msg="Permission does not exist")
         data = await enforcer.remove_policy(p.sub, p.path, p.method)
         return data
 
     @staticmethod
     async def delete_policies(*, ps: list[DeletePolicyParam]) -> bool:
         enforcer = await rbac.enforcer()
-        data = await enforcer.remove_policies([list(p.model_dump().values()) for p in ps])
+        data = await enforcer.remove_policies(
+            [list(p.model_dump().values()) for p in ps]
+        )
         if not data:
-            raise errors.NotFoundError(msg='权限不存在')
+            raise errors.NotFoundError(msg="Permission does not exist")
         return data
 
     @staticmethod
@@ -99,15 +105,17 @@ class CasbinService:
         enforcer = await rbac.enforcer()
         data = await enforcer.add_grouping_policy(g.uuid, g.role)
         if not data:
-            raise errors.ForbiddenError(msg='权限已存在')
+            raise errors.ForbiddenError(msg="Permission already exists")
         return data
 
     @staticmethod
     async def create_groups(*, gs: list[CreateUserRoleParam]) -> bool:
         enforcer = await rbac.enforcer()
-        data = await enforcer.add_grouping_policies([list(g.model_dump().values()) for g in gs])
+        data = await enforcer.add_grouping_policies(
+            [list(g.model_dump().values()) for g in gs]
+        )
         if not data:
-            raise errors.ForbiddenError(msg='权限已存在')
+            raise errors.ForbiddenError(msg="Permission already exists")
         return data
 
     @staticmethod
@@ -115,16 +123,18 @@ class CasbinService:
         enforcer = await rbac.enforcer()
         _g = enforcer.has_grouping_policy(g.uuid, g.role)
         if not _g:
-            raise errors.NotFoundError(msg='权限不存在')
+            raise errors.NotFoundError(msg="Permission does not exist")
         data = await enforcer.remove_grouping_policy(g.uuid, g.role)
         return data
 
     @staticmethod
     async def delete_groups(*, gs: list[DeleteUserRoleParam]) -> bool:
         enforcer = await rbac.enforcer()
-        data = await enforcer.remove_grouping_policies([list(g.model_dump().values()) for g in gs])
+        data = await enforcer.remove_grouping_policies(
+            [list(g.model_dump().values()) for g in gs]
+        )
         if not data:
-            raise errors.NotFoundError(msg='权限不存在')
+            raise errors.NotFoundError(msg="Permission does not exist")
         return data
 
     @staticmethod

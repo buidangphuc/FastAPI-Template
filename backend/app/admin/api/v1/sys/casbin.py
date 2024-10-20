@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from typing import Annotated
 from uuid import UUID
 
@@ -26,8 +24,8 @@ router = APIRouter()
 
 
 @router.get(
-    '',
-    summary='（模糊条件）分页获取所有权限策略',
+    "",
+    summary="Get all casbin policies",
     dependencies=[
         DependsJwtAuth,
         DependsPagination,
@@ -35,47 +33,42 @@ router = APIRouter()
 )
 async def get_pagination_casbin(
     db: CurrentSession,
-    ptype: Annotated[str | None, Query(description='策略类型, p / g')] = None,
-    sub: Annotated[str | None, Query(description='用户 uuid / 角色')] = None,
+    ptype: Annotated[str | None, Query(description="Strategy Type")] = None,
+    sub: Annotated[str | None, Query(description="User uuid/ Role ID")] = None,
 ) -> ResponseModel:
     casbin_select = await casbin_service.get_casbin_list(ptype=ptype, sub=sub)
     page_data = await paging_data(db, casbin_select, GetPolicyListDetails)
     return response_base.success(data=page_data)
 
 
-@router.get('/policies', summary='获取所有P权限策略', dependencies=[DependsJwtAuth])
-async def get_all_policies(role: Annotated[int | None, Query(description='角色ID')] = None) -> ResponseModel:
+@router.get(
+    "/policies", summary="Get all casbin policies", dependencies=[DependsJwtAuth]
+)
+async def get_all_policies(
+    role: Annotated[int | None, Query(description="角色ID")] = None
+) -> ResponseModel:
     policies = await casbin_service.get_policy_list(role=role)
     return response_base.success(data=policies)
 
 
 @router.post(
-    '/policy',
-    summary='添加P权限策略',
+    "/policy",
+    summary="Add P permission policy",
     dependencies=[
-        Depends(RequestPermission('casbin:p:add')),
+        Depends(RequestPermission("casbin:p:add")),
         DependsRBAC,
     ],
 )
 async def create_policy(p: CreatePolicyParam) -> ResponseModel:
-    """
-    p 策略:
-
-    - 推荐添加基于角色的访问权限, 需配合添加 g 策略才能真正拥有访问权限，适合配置全局接口访问策略<br>
-    **格式**: 角色 role + 访问路径 path + 访问方法 method
-
-    - 如果添加基于用户的访问权限, 不需配合添加 g 策略就能真正拥有权限，适合配置指定用户接口访问策略<br>
-    **格式**: 用户 uuid + 访问路径 path + 访问方法 method
-    """
     data = await casbin_service.create_policy(p=p)
     return response_base.success(data=data)
 
 
 @router.post(
-    '/policies',
-    summary='添加多组P权限策略',
+    "/policies",
+    summary="Add multiple P permission policies",
     dependencies=[
-        Depends(RequestPermission('casbin:p:group:add')),
+        Depends(RequestPermission("casbin:p:group:add")),
         DependsRBAC,
     ],
 )
@@ -85,36 +78,40 @@ async def create_policies(ps: list[CreatePolicyParam]) -> ResponseModel:
 
 
 @router.put(
-    '/policy',
-    summary='更新P权限策略',
+    "/policy",
+    summary="Update P permission policy",
     dependencies=[
-        Depends(RequestPermission('casbin:p:edit')),
+        Depends(RequestPermission("casbin:p:edit")),
         DependsRBAC,
     ],
 )
-async def update_policy(old: UpdatePolicyParam, new: UpdatePolicyParam) -> ResponseModel:
+async def update_policy(
+    old: UpdatePolicyParam, new: UpdatePolicyParam
+) -> ResponseModel:
     data = await casbin_service.update_policy(old=old, new=new)
     return response_base.success(data=data)
 
 
 @router.put(
-    '/policies',
-    summary='更新多组P权限策略',
+    "/policies",
+    summary="Update multiple P permission policies",
     dependencies=[
-        Depends(RequestPermission('casbin:p:group:edit')),
+        Depends(RequestPermission("casbin:p:group:edit")),
         DependsRBAC,
     ],
 )
-async def update_policies(old: list[UpdatePolicyParam], new: list[UpdatePolicyParam]) -> ResponseModel:
+async def update_policies(
+    old: list[UpdatePolicyParam], new: list[UpdatePolicyParam]
+) -> ResponseModel:
     data = await casbin_service.update_policies(old=old, new=new)
     return response_base.success(data=data)
 
 
 @router.delete(
-    '/policy',
-    summary='删除P权限策略',
+    "/policy",
+    summary="Delete P permission policy",
     dependencies=[
-        Depends(RequestPermission('casbin:p:del')),
+        Depends(RequestPermission("casbin:p:del")),
         DependsRBAC,
     ],
 )
@@ -124,10 +121,10 @@ async def delete_policy(p: DeletePolicyParam) -> ResponseModel:
 
 
 @router.delete(
-    '/policies',
-    summary='删除多组P权限策略',
+    "/policies",
+    summary="Delete multiple P permission policies",
     dependencies=[
-        Depends(RequestPermission('casbin:p:group:del')),
+        Depends(RequestPermission("casbin:p:group:del")),
         DependsRBAC,
     ],
 )
@@ -137,10 +134,10 @@ async def delete_policies(ps: list[DeletePolicyParam]) -> ResponseModel:
 
 
 @router.delete(
-    '/policies/all',
-    summary='删除所有P权限策略',
+    "/policies/all",
+    summary="Delete all P permission policies",
     dependencies=[
-        Depends(RequestPermission('casbin:p:empty')),
+        Depends(RequestPermission("casbin:p:empty")),
         DependsRBAC,
     ],
 )
@@ -151,39 +148,32 @@ async def delete_all_policies(sub: DeleteAllPoliciesParam) -> ResponseModel:
     return response_base.fail()
 
 
-@router.get('/groups', summary='获取所有G权限策略', dependencies=[DependsJwtAuth])
+@router.get(
+    "/groups", summary="Get all G permission policies", dependencies=[DependsJwtAuth]
+)
 async def get_all_groups() -> ResponseModel:
     data = await casbin_service.get_group_list()
     return response_base.success(data=data)
 
 
 @router.post(
-    '/group',
-    summary='添加G权限策略',
+    "/group",
+    summary="Add G permission policy",
     dependencies=[
-        Depends(RequestPermission('casbin:g:add')),
+        Depends(RequestPermission("casbin:g:add")),
         DependsRBAC,
     ],
 )
 async def create_group(g: CreateUserRoleParam) -> ResponseModel:
-    """
-    g 策略 (**依赖 p 策略**):
-
-    - 如果在 p 策略中添加了基于角色的访问权限, 则还需要在 g 策略中添加基于用户组的访问权限, 才能真正拥有访问权限<br>
-    **格式**: 用户 uuid + 角色 role
-
-    - 如果在 p 策略中添加了基于用户的访问权限, 则不添加相应的 g 策略能直接拥有访问权限<br>
-    但是拥有的不是用户角色的所有权限, 而只是单一的对应的 p 策略所添加的访问权限
-    """
     data = await casbin_service.create_group(g=g)
     return response_base.success(data=data)
 
 
 @router.post(
-    '/groups',
-    summary='添加多组G权限策略',
+    "/groups",
+    summary="Add multiple G permission policies",
     dependencies=[
-        Depends(RequestPermission('casbin:g:group:add')),
+        Depends(RequestPermission("casbin:g:group:add")),
         DependsRBAC,
     ],
 )
@@ -193,10 +183,10 @@ async def create_groups(gs: list[CreateUserRoleParam]) -> ResponseModel:
 
 
 @router.delete(
-    '/group',
-    summary='删除G权限策略',
+    "/group",
+    summary="Delete G permission policy",
     dependencies=[
-        Depends(RequestPermission('casbin:g:del')),
+        Depends(RequestPermission("casbin:g:del")),
         DependsRBAC,
     ],
 )
@@ -206,10 +196,10 @@ async def delete_group(g: DeleteUserRoleParam) -> ResponseModel:
 
 
 @router.delete(
-    '/groups',
-    summary='删除多组G权限策略',
+    "/groups",
+    summary="Delete multiple G permission policies",
     dependencies=[
-        Depends(RequestPermission('casbin:g:group:del')),
+        Depends(RequestPermission("casbin:g:group:del")),
         DependsRBAC,
     ],
 )
@@ -219,10 +209,10 @@ async def delete_groups(gs: list[DeleteUserRoleParam]) -> ResponseModel:
 
 
 @router.delete(
-    '/groups/all',
-    summary='删除所有G权限策略',
+    "/groups/all",
+    summary="Delete all G permission policies",
     dependencies=[
-        Depends(RequestPermission('casbin:g:empty')),
+        Depends(RequestPermission("casbin:g:empty")),
         DependsRBAC,
     ],
 )

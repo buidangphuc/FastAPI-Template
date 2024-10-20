@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from uuid import UUID
 
 from sqlalchemy import Select
@@ -11,19 +9,22 @@ from backend.app.admin.schema.casbin_rule import DeleteAllPoliciesParam
 
 
 class CRUDCasbin(CRUDPlus[CasbinRule]):
+
     async def get_list(self, ptype: str, sub: str) -> Select:
         """
-        获取策略列表
+        Get casbin rule list
 
         :param ptype:
         :param sub:
         :return:
         """
-        return await self.select_order('id', 'desc', ptype=ptype, v0__like=f'%{sub}%')
+        return await self.select_order("id", "desc", ptype=ptype, v0__like=f"%{sub}%")
 
-    async def delete_policies_by_sub(self, db: AsyncSession, sub: DeleteAllPoliciesParam) -> int:
+    async def delete_policies_by_sub(
+        self, db: AsyncSession, sub: DeleteAllPoliciesParam
+    ) -> int:
         """
-        删除角色所有P策略
+        Delete all policies by sub
 
         :param db:
         :param sub:
@@ -32,11 +33,13 @@ class CRUDCasbin(CRUDPlus[CasbinRule]):
         where_list = [sub.role]
         if sub.uuid:
             where_list.append(sub.uuid)
-        return await self.delete_model_by_column(db, allow_multiple=True, v0__mor={'eq': where_list})
+        return await self.delete_model_by_column(
+            db, allow_multiple=True, v0__mor={"eq": where_list}
+        )
 
     async def delete_groups_by_uuid(self, db: AsyncSession, uuid: UUID) -> int:
         """
-        删除用户所有G策略
+        Delete all groups by uuid
 
         :param db:
         :param uuid:

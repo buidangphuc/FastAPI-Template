@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from contextlib import asynccontextmanager
 
 from asgi_correlation_id import CorrelationIdMiddleware
@@ -12,7 +10,6 @@ from backend.app.router import route
 from backend.common.exception.exception_handler import register_exception
 from backend.common.log import set_customize_logfile, setup_logging
 from backend.core.conf import settings
-from backend.core.path_conf import STATIC_DIR
 from backend.database.db_mysql import create_table
 from backend.database.db_redis import redis_client
 from backend.middleware.jwt_auth_middleware import JwtAuthMiddleware
@@ -27,24 +24,26 @@ from backend.utils.serializers import MsgSpecJSONResponse
 @asynccontextmanager
 async def register_init(app: FastAPI):
     """
-    启动初始化
+    Start initialization
 
     :return:
     """
-    # 创建数据库表
+    # Create table
     await create_table()
-    # 连接 redis
+    # Open redis connection
     await redis_client.open()
-    # 初始化 limiter
+    # Initialize limiter
     await FastAPILimiter.init(
-        redis=redis_client, prefix=settings.REQUEST_LIMITER_REDIS_PREFIX, http_callback=http_limit_callback
+        redis=redis_client,
+        prefix=settings.REQUEST_LIMITER_REDIS_PREFIX,
+        http_callback=http_limit_callback,
     )
 
     yield
 
-    # 关闭 redis 连接
+    # Close redis connection
     await redis_client.close()
-    # 关闭 limiter
+    # Close limiter
     await FastAPILimiter.close()
 
 
@@ -61,22 +60,19 @@ def register_app():
         lifespan=register_init,
     )
 
-    # 日志
+    # logger
     register_logger()
 
-    # 静态文件
-    register_static_file(app)
-
-    # 中间件
+    # middleware
     register_middleware(app)
 
-    # 路由
+    # router
     register_router(app)
 
-    # 分页
+    # page
     register_page(app)
 
-    # 全局异常处理
+    # exception
     register_exception(app)
 
     return app
@@ -84,7 +80,7 @@ def register_app():
 
 def register_logger() -> None:
     """
-    系统日志
+    Log configuration
 
     :return:
     """
@@ -92,26 +88,9 @@ def register_logger() -> None:
     set_customize_logfile()
 
 
-def register_static_file(app: FastAPI):
-    """
-    静态文件交互开发模式, 生产使用 nginx 静态资源服务
-
-    :param app:
-    :return:
-    """
-    if settings.FASTAPI_STATIC_FILES:
-        import os
-
-        from fastapi.staticfiles import StaticFiles
-
-        if not os.path.exists(STATIC_DIR):
-            os.mkdir(STATIC_DIR)
-        app.mount('/static', StaticFiles(directory=STATIC_DIR), name='static')
-
-
 def register_middleware(app: FastAPI):
     """
-    中间件，执行顺序从下往上
+    Middleware
 
     :param app:
     :return:
@@ -120,7 +99,9 @@ def register_middleware(app: FastAPI):
     app.add_middleware(OperaLogMiddleware)
     # JWT auth (required)
     app.add_middleware(
-        AuthenticationMiddleware, backend=JwtAuthMiddleware(), on_error=JwtAuthMiddleware.auth_exception_handler
+        AuthenticationMiddleware,
+        backend=JwtAuthMiddleware(),
+        on_error=JwtAuthMiddleware.auth_exception_handler,
     )
     # Access log
     if settings.MIDDLEWARE_ACCESS:
@@ -139,15 +120,15 @@ def register_middleware(app: FastAPI):
             CORSMiddleware,
             allow_origins=settings.CORS_ALLOWED_ORIGINS,
             allow_credentials=True,
-            allow_methods=['*'],
-            allow_headers=['*'],
+            allow_methods=["*"],
+            allow_headers=["*"],
             expose_headers=settings.CORS_EXPOSE_HEADERS,
         )
 
 
 def register_router(app: FastAPI):
     """
-    路由
+    Register router
 
     :param app: FastAPI
     :return:
@@ -164,7 +145,7 @@ def register_router(app: FastAPI):
 
 def register_page(app: FastAPI):
     """
-    分页查询
+    Register page
 
     :param app:
     :return:

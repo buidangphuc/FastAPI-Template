@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from typing import Sequence
 
 from sqlalchemy import and_, asc, select
@@ -11,9 +9,10 @@ from backend.app.admin.schema.menu import CreateMenuParam, UpdateMenuParam
 
 
 class CRUDMenu(CRUDPlus[Menu]):
+
     async def get(self, db, menu_id: int) -> Menu | None:
         """
-        获取菜单
+        Get menu by id
 
         :param db:
         :param menu_id:
@@ -23,7 +22,7 @@ class CRUDMenu(CRUDPlus[Menu]):
 
     async def get_by_title(self, db, title: str) -> Menu | None:
         """
-        通过 title 获取菜单
+        Get menu by title
 
         :param db:
         :param title:
@@ -31,9 +30,11 @@ class CRUDMenu(CRUDPlus[Menu]):
         """
         return await self.select_model_by_column(db, title=title, menu_type__ne=2)
 
-    async def get_all(self, db, title: str | None = None, status: int | None = None) -> Sequence[Menu]:
+    async def get_all(
+        self, db, title: str | None = None, status: int | None = None
+    ) -> Sequence[Menu]:
         """
-        获取所有菜单
+        Get all menus
 
         :param db:
         :param title:
@@ -42,14 +43,16 @@ class CRUDMenu(CRUDPlus[Menu]):
         """
         filters = {}
         if title is not None:
-            filters.update(title=f'%{title}%')
+            filters.update(title=f"%{title}%")
         if status is not None:
             filters.update(status=status)
-        return await self.select_models_order(db, 'sort', **filters)
+        return await self.select_models_order(db, "sort", **filters)
 
-    async def get_role_menus(self, db, superuser: bool, menu_ids: list[int]) -> Sequence[Menu]:
+    async def get_role_menus(
+        self, db, superuser: bool, menu_ids: list[int]
+    ) -> Sequence[Menu]:
         """
-        获取角色菜单
+        Get role menus
 
         :param db:
         :param superuser:
@@ -66,7 +69,7 @@ class CRUDMenu(CRUDPlus[Menu]):
 
     async def create(self, db, obj_in: CreateMenuParam) -> None:
         """
-        创建菜单
+        Create menu
 
         :param db:
         :param obj_in:
@@ -76,7 +79,7 @@ class CRUDMenu(CRUDPlus[Menu]):
 
     async def update(self, db, menu_id: int, obj_in: UpdateMenuParam) -> int:
         """
-        更新菜单
+        Update menu
 
         :param db:
         :param menu_id:
@@ -87,7 +90,7 @@ class CRUDMenu(CRUDPlus[Menu]):
 
     async def delete(self, db, menu_id: int) -> int:
         """
-        删除菜单
+        Delete menu
 
         :param db:
         :param menu_id:
@@ -97,13 +100,17 @@ class CRUDMenu(CRUDPlus[Menu]):
 
     async def get_children(self, db, menu_id: int) -> list[Menu]:
         """
-        获取子菜单
+        Get menu children
 
         :param db:
         :param menu_id:
         :return:
         """
-        stmt = select(self.model).options(selectinload(self.model.children)).where(self.model.id == menu_id)
+        stmt = (
+            select(self.model)
+            .options(selectinload(self.model.children))
+            .where(self.model.id == menu_id)
+        )
         result = await db.execute(stmt)
         menu = result.scalars().first()
         return menu.children

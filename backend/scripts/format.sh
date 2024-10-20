@@ -1,3 +1,1 @@
-#!/usr/bin/env bash
-
-ruff format --check
+isort . && pyink . && ruff check --fix && ruff format

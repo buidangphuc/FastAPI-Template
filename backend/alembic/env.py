@@ -1,45 +1,39 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# ruff: noqa: E402, F403, I001, RUF100
 import asyncio
 import os
 import sys
 
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-sys.path.append('../')
+from alembic import context
+
+sys.path.append("../")
 
 from backend.core import path_conf
 
 if not os.path.exists(path_conf.ALEMBIC_Versions_DIR):
     os.makedirs(path_conf.ALEMBIC_Versions_DIR)
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# this is the Alembic Config object, which provides access to the values within the .ini file in use.
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# Interpret the config file for Python logging. This line sets up loggers basically.
 fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-from backend.common.model import MappedBase
-
 # if add new app, do like this
-from backend.app.admin.model import *  # noqa: F401
-from backend.app.generator.model import *  # noqa: F401
+from backend.app.admin.model import *
+
+# add your model's MetaData object here for 'autogenerate' support
+from backend.common.model import MappedBase
 
 target_metadata = MappedBase.metadata
 
 # other values from the config, defined by the needs of env.py,
 from backend.database.db_mysql import SQLALCHEMY_DATABASE_URL
 
-config.set_main_option('sqlalchemy.url', SQLALCHEMY_DATABASE_URL)
+config.set_main_option("sqlalchemy.url", SQLALCHEMY_DATABASE_URL)
 
 
 def run_migrations_offline():
@@ -54,12 +48,12 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option('sqlalchemy.url')
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={'paramstyle': 'named'},
+        dialect_opts={"paramstyle": "named"},
     )
 
     with context.begin_transaction():
@@ -86,7 +80,7 @@ async def run_migrations_online():
     connectable = AsyncEngine(
         engine_from_config(
             config.get_section(config.config_ini_section),
-            prefix='sqlalchemy.',
+            prefix="sqlalchemy.",
             poolclass=pool.NullPool,
             future=True,
         )

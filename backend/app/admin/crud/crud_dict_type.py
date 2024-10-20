@@ -1,17 +1,19 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from sqlalchemy import Select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy_crud_plus import CRUDPlus
 
 from backend.app.admin.model import DictType
-from backend.app.admin.schema.dict_type import CreateDictTypeParam, UpdateDictTypeParam
+from backend.app.admin.schema.dict_type import (
+    CreateDictTypeParam,
+    UpdateDictTypeParam,
+)
 
 
 class CRUDDictType(CRUDPlus[DictType]):
+
     async def get(self, db: AsyncSession, pk: int) -> DictType | None:
         """
-        获取字典类型
+        Get dict type by id
 
         :param db:
         :param pk:
@@ -19,9 +21,11 @@ class CRUDDictType(CRUDPlus[DictType]):
         """
         return await self.select_model(db, pk)
 
-    async def get_list(self, *, name: str = None, code: str = None, status: int = None) -> Select:
+    async def get_list(
+        self, *, name: str = None, code: str = None, status: int = None
+    ) -> Select:
         """
-        获取所有字典类型
+        Get dict type list
 
         :param name:
         :param code:
@@ -30,16 +34,16 @@ class CRUDDictType(CRUDPlus[DictType]):
         """
         filters = {}
         if name is not None:
-            filters.update(name__like=f'%{name}%')
+            filters.update(name__like=f"%{name}%")
         if code is not None:
-            filters.update(code__like=f'%{code}%')
+            filters.update(code__like=f"%{code}%")
         if status is not None:
             filters.update(status=status)
-        return await self.select_order('created_time', 'desc', **filters)
+        return await self.select_order("created_time", "desc", **filters)
 
     async def get_by_code(self, db: AsyncSession, code: str) -> DictType | None:
         """
-        通过 code 获取字典类型
+        Get dict type by code
 
         :param db:
         :param code:
@@ -49,7 +53,7 @@ class CRUDDictType(CRUDPlus[DictType]):
 
     async def create(self, db: AsyncSession, obj_in: CreateDictTypeParam) -> None:
         """
-        创建字典类型
+        Create dict type
 
         :param db:
         :param obj_in:
@@ -57,9 +61,11 @@ class CRUDDictType(CRUDPlus[DictType]):
         """
         await self.create_model(db, obj_in)
 
-    async def update(self, db: AsyncSession, pk: int, obj_in: UpdateDictTypeParam) -> int:
+    async def update(
+        self, db: AsyncSession, pk: int, obj_in: UpdateDictTypeParam
+    ) -> int:
         """
-        更新字典类型
+        Update dict type
 
         :param db:
         :param pk:
@@ -70,7 +76,7 @@ class CRUDDictType(CRUDPlus[DictType]):
 
     async def delete(self, db: AsyncSession, pk: list[int]) -> int:
         """
-        删除字典类型
+        Delete dict type
 
         :param db:
         :param pk:

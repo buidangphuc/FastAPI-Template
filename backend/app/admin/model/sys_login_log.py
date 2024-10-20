@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from sqlalchemy import String
@@ -11,22 +9,26 @@ from backend.utils.timezone import timezone
 
 
 class LoginLog(DataClassBase):
-    """登录日志表"""
+    """Login log"""
 
-    __tablename__ = 'sys_login_log'
+    __tablename__ = "sys_login_log"
 
     id: Mapped[id_key] = mapped_column(init=False)
-    user_uuid: Mapped[str] = mapped_column(String(50), comment='用户UUID')
-    username: Mapped[str] = mapped_column(String(20), comment='用户名')
-    status: Mapped[int] = mapped_column(insert_default=0, comment='登录状态(0失败 1成功)')
-    ip: Mapped[str] = mapped_column(String(50), comment='登录IP地址')
-    country: Mapped[str | None] = mapped_column(String(50), comment='国家')
-    region: Mapped[str | None] = mapped_column(String(50), comment='地区')
-    city: Mapped[str | None] = mapped_column(String(50), comment='城市')
-    user_agent: Mapped[str] = mapped_column(String(255), comment='请求头')
-    os: Mapped[str | None] = mapped_column(String(50), comment='操作系统')
-    browser: Mapped[str | None] = mapped_column(String(50), comment='浏览器')
-    device: Mapped[str | None] = mapped_column(String(50), comment='设备')
-    msg: Mapped[str] = mapped_column(LONGTEXT, comment='提示消息')
-    login_time: Mapped[datetime] = mapped_column(comment='登录时间')
-    created_time: Mapped[datetime] = mapped_column(init=False, default_factory=timezone.now, comment='创建时间')
+    user_uuid: Mapped[str] = mapped_column(String(50), comment="User UUID")
+    username: Mapped[str] = mapped_column(String(20), comment="Username")
+    status: Mapped[int] = mapped_column(
+        insert_default=0, comment="Status"
+    )  # 0: Fail, 1: Success
+    ip: Mapped[str] = mapped_column(String(50), comment="IP")
+    country: Mapped[str | None] = mapped_column(String(50), comment="Country")
+    region: Mapped[str | None] = mapped_column(String(50), comment="Region")
+    city: Mapped[str | None] = mapped_column(String(50), comment="City")
+    user_agent: Mapped[str] = mapped_column(String(255), comment="User agent")
+    os: Mapped[str | None] = mapped_column(String(50), comment="OS")
+    browser: Mapped[str | None] = mapped_column(String(50), comment="Browser")
+    device: Mapped[str | None] = mapped_column(String(50), comment="Device")
+    msg: Mapped[str] = mapped_column(LONGTEXT, comment="Message")
+    login_time: Mapped[datetime] = mapped_column(comment="Login time")
+    created_time: Mapped[datetime] = mapped_column(
+        init=False, default_factory=timezone.now, comment="Created time"
+    )

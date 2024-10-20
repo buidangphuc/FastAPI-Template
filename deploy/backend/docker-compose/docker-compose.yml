@@ -14,8 +14,6 @@ volumes:
     name: fba_mysql
   fba_redis:
     name: fba_redis
-  fba_static:
-    name: fba_static
   fba_rabbitmq:
     name: fba_rabbitmq
 

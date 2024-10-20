@@ -26,4 +26,4 @@ RUN chmod +x celery-start.sh
 
 EXPOSE 8555
 
-CMD ["./celery-start.sh"]
+CMD ["./scipts/celery-start.sh"]

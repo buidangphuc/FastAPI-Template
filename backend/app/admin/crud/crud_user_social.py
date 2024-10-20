@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy_crud_plus import CRUDPlus
 
@@ -9,9 +7,12 @@ from backend.common.enums import UserSocialType
 
 
 class CRUDOUserSocial(CRUDPlus[UserSocial]):
-    async def get(self, db: AsyncSession, pk: int, source: UserSocialType) -> UserSocial | None:
+
+    async def get(
+        self, db: AsyncSession, pk: int, source: UserSocialType
+    ) -> UserSocial | None:
         """
-        获取用户社交账号绑定
+        Get user social by id and source
 
         :param db:
         :param pk:
@@ -22,7 +23,7 @@ class CRUDOUserSocial(CRUDPlus[UserSocial]):
 
     async def create(self, db: AsyncSession, obj_in: CreateUserSocialParam) -> None:
         """
-        创建用户社交账号绑定
+        Create user social
 
         :param db:
         :param obj_in:
@@ -32,7 +33,7 @@ class CRUDOUserSocial(CRUDPlus[UserSocial]):
 
     async def delete(self, db: AsyncSession, social_id: int) -> int:
         """
-        删除用户社交账号绑定
+        Delete user social
 
         :param db:
         :param social_id:

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from pydantic import ConfigDict, Field
@@ -11,11 +9,14 @@ from backend.common.schema import SchemaBase
 class MenuSchemaBase(SchemaBase):
     title: str
     name: str
-    parent_id: int | None = Field(default=None, description='菜单父级ID')
-    sort: int = Field(default=0, ge=0, description='排序')
+    parent_id: int | None = Field(default=None, description="Menu parent ID")
+    sort: int = Field(default=0, ge=0, description="Sort")
     icon: str | None = None
     path: str | None = None
-    menu_type: MenuType = Field(default=MenuType.directory, description='菜单类型（0目录 1菜单 2按钮）')
+    menu_type: MenuType = Field(
+        default=MenuType.directory,
+        description="Menu type (0 Directory 1 Menu 2 Button）",
+    )
     component: str | None = None
     perms: str | None = None
     status: StatusType = Field(default=StatusType.enable)

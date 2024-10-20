@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from typing import Sequence
 
 from sqlalchemy import select
@@ -11,9 +9,10 @@ from backend.app.admin.schema.config import CreateConfigParam, UpdateConfigParam
 
 
 class CRUDConfig(CRUDPlus[Config]):
+
     async def get_one(self, db: AsyncSession) -> Config | None:
         """
-        获取 Config
+        Get Config
 
         :param db:
         :return:
@@ -23,7 +22,7 @@ class CRUDConfig(CRUDPlus[Config]):
 
     async def get_all(self, db: AsyncSession) -> Sequence[Config]:
         """
-        获取所有 Config
+        Get All Config
 
         :param db:
         :return:
@@ -32,7 +31,7 @@ class CRUDConfig(CRUDPlus[Config]):
 
     async def create(self, db: AsyncSession, obj_in: CreateConfigParam) -> None:
         """
-        创建 Config
+        Create Config
 
         :param db:
         :param obj_in:
@@ -42,7 +41,7 @@ class CRUDConfig(CRUDPlus[Config]):
 
     async def update(self, db: AsyncSession, pk: int, obj_in: UpdateConfigParam) -> int:
         """
-        更新 Config
+        Update Config
 
         :param db:
         :param pk:
@@ -53,7 +52,7 @@ class CRUDConfig(CRUDPlus[Config]):
 
     async def delete(self, db: AsyncSession, pk: list[int]) -> int:
         """
-        删除 Config
+        Delete Config
 
         :param db:
         :param pk:

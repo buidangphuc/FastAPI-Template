@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from typing import Sequence
 
 from sqlalchemy import Select
@@ -11,9 +9,10 @@ from backend.app.admin.schema.api import CreateApiParam, UpdateApiParam
 
 
 class CRUDApi(CRUDPlus[Api]):
+
     async def get(self, db: AsyncSession, pk: int) -> Api | None:
         """
-        获取 API
+        Get API by id
 
         :param db:
         :param pk:
@@ -21,9 +20,11 @@ class CRUDApi(CRUDPlus[Api]):
         """
         return await self.select_model(db, pk)
 
-    async def get_list(self, name: str = None, method: str = None, path: str = None) -> Select:
+    async def get_list(
+        self, name: str = None, method: str = None, path: str = None
+    ) -> Select:
         """
-        获取 API 列表
+        Get API list
 
         :param name:
         :param method:
@@ -32,16 +33,16 @@ class CRUDApi(CRUDPlus[Api]):
         """
         filters = {}
         if name is not None:
-            filters.update(name__like=f'%{name}%')
+            filters.update(name__like=f"%{name}%")
         if method is not None:
             filters.update(method=method)
         if path is not None:
-            filters.update(path__like=f'%{path}%')
-        return await self.select_order('created_time', 'desc', **filters)
+            filters.update(path__like=f"%{path}%")
+        return await self.select_order("created_time", "desc", **filters)
 
     async def get_all(self, db: AsyncSession) -> Sequence[Api]:
         """
-        获取所有 API
+        Get all APIs
 
         :param db:
         :return:
@@ -50,7 +51,7 @@ class CRUDApi(CRUDPlus[Api]):
 
     async def get_by_name(self, db: AsyncSession, name: str) -> Api | None:
         """
-        通过 name 获取 API
+        Get API by name
 
         :param db:
         :param name:
@@ -60,7 +61,7 @@ class CRUDApi(CRUDPlus[Api]):
 
     async def create(self, db: AsyncSession, obj_in: CreateApiParam) -> None:
         """
-        创建 API
+        Create API
 
         :param db:
         :param obj_in:
@@ -70,7 +71,7 @@ class CRUDApi(CRUDPlus[Api]):
 
     async def update(self, db: AsyncSession, pk: int, obj_in: UpdateApiParam) -> int:
         """
-        更新 API
+        Update API
 
         :param db:
         :param pk:
@@ -81,7 +82,7 @@ class CRUDApi(CRUDPlus[Api]):
 
     async def delete(self, db: AsyncSession, pk: list[int]) -> int:
         """
-        删除 API
+        Delete API
 
         :param db:
         :param pk:

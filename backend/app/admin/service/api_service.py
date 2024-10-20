@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from typing import Sequence
 
 from sqlalchemy import Select
@@ -12,16 +10,19 @@ from backend.database.db_mysql import async_db_session
 
 
 class ApiService:
+
     @staticmethod
     async def get(*, pk: int) -> Api:
         async with async_db_session() as db:
             api = await api_dao.get(db, pk)
             if not api:
-                raise errors.NotFoundError(msg='接口不存在')
+                raise errors.NotFoundError(msg="Interface does not exist")
             return api
 
     @staticmethod
-    async def get_select(*, name: str = None, method: str = None, path: str = None) -> Select:
+    async def get_select(
+        *, name: str = None, method: str = None, path: str = None
+    ) -> Select:
         return await api_dao.get_list(name=name, method=method, path=path)
 
     @staticmethod
@@ -35,7 +36,7 @@ class ApiService:
         async with async_db_session.begin() as db:
             api = await api_dao.get_by_name(db, obj.name)
             if api:
-                raise errors.ForbiddenError(msg='接口已存在')
+                raise errors.ForbiddenError(msg="Interface already exists")
             await api_dao.create(db, obj)
 
     @staticmethod

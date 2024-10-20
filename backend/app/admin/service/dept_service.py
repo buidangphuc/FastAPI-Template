@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from typing import Any
 
 from backend.app.admin.crud.crud_dept import dept_dao
@@ -11,20 +9,27 @@ from backend.utils.build_tree import get_tree_data
 
 
 class DeptService:
+
     @staticmethod
     async def get(*, pk: int) -> Dept:
         async with async_db_session() as db:
             dept = await dept_dao.get(db, pk)
             if not dept:
-                raise errors.NotFoundError(msg='部门不存在')
+                raise errors.NotFoundError(msg="Department does not exist")
             return dept
 
     @staticmethod
     async def get_dept_tree(
-        *, name: str | None = None, leader: str | None = None, phone: str | None = None, status: int | None = None
+        *,
+        name: str | None = None,
+        leader: str | None = None,
+        phone: str | None = None,
+        status: int | None = None
     ) -> list[dict[str, Any]]:
         async with async_db_session() as db:
-            dept_select = await dept_dao.get_all(db=db, name=name, leader=leader, phone=phone, status=status)
+            dept_select = await dept_dao.get_all(
+                db=db, name=name, leader=leader, phone=phone, status=status
+            )
             tree_data = get_tree_data(dept_select)
             return tree_data
 
@@ -33,11 +38,11 @@ class DeptService:
         async with async_db_session.begin() as db:
             dept = await dept_dao.get_by_name(db, obj.name)
             if dept:
-                raise errors.ForbiddenError(msg='部门名称已存在')
+                raise errors.ForbiddenError(msg="Department already exists")
             if obj.parent_id:
                 parent_dept = await dept_dao.get(db, obj.parent_id)
                 if not parent_dept:
-                    raise errors.NotFoundError(msg='父级部门不存在')
+                    raise errors.NotFoundError(msg="Parent department does not exist")
             await dept_dao.create(db, obj)
 
     @staticmethod
@@ -45,16 +50,18 @@ class DeptService:
         async with async_db_session.begin() as db:
             dept = await dept_dao.get(db, pk)
             if not dept:
-                raise errors.NotFoundError(msg='部门不存在')
+                raise errors.NotFoundError(msg="Department does not exist")
             if dept.name != obj.name:
                 if await dept_dao.get_by_name(db, obj.name):
-                    raise errors.ForbiddenError(msg='部门名称已存在')
+                    raise errors.ForbiddenError(msg="Department already exists")
             if obj.parent_id:
                 parent_dept = await dept_dao.get(db, obj.parent_id)
                 if not parent_dept:
-                    raise errors.NotFoundError(msg='父级部门不存在')
+                    raise errors.NotFoundError(msg="Parent department does not exist")
             if obj.parent_id == dept.id:
-                raise errors.ForbiddenError(msg='禁止关联自身为父级')
+                raise errors.ForbiddenError(
+                    msg="Cannot set the parent department to itself"
+                )
             count = await dept_dao.update(db, pk, obj)
             return count
 
@@ -63,10 +70,14 @@ class DeptService:
         async with async_db_session.begin() as db:
             dept_user = await dept_dao.get_with_relation(db, pk)
             if dept_user:
-                raise errors.ForbiddenError(msg='部门下存在用户，无法删除')
+                raise errors.ForbiddenError(
+                    msg="Department has users, cannot be deleted"
+                )
             children = await dept_dao.get_children(db, pk)
             if children:
-                raise errors.ForbiddenError(msg='部门下存在子部门，无法删除')
+                raise errors.ForbiddenError(
+                    msg="Department has sub-departments, cannot be deleted"
+                )
             count = await dept_dao.delete(db, pk)
             return count
 

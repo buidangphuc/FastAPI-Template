@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from fastapi import Request, Response
 from fastapi.security import HTTPBasicCredentials
 from starlette.background import BackgroundTask, BackgroundTasks
@@ -28,43 +26,68 @@ from backend.utils.timezone import timezone
 
 
 class AuthService:
+
     @staticmethod
     async def swagger_login(*, obj: HTTPBasicCredentials) -> tuple[str, User]:
         async with async_db_session.begin() as db:
             current_user = await user_dao.get_by_username(db, obj.username)
             if not current_user:
-                raise errors.NotFoundError(msg='用户名或密码有误')
-            elif not password_verify(f'{obj.password}{current_user.salt}', current_user.password):
-                raise errors.AuthorizationError(msg='用户名或密码有误')
+                raise errors.NotFoundError(msg="Username or password is incorrect")
+            elif not password_verify(
+                f"{obj.password}{current_user.salt}", current_user.password
+            ):
+                raise errors.AuthorizationError(msg="Username or password is incorrect")
             elif not current_user.status:
-                raise errors.AuthorizationError(msg='用户已被锁定, 请联系统管理员')
-            access_token = await create_access_token(str(current_user.id), current_user.is_multi_login)
+                raise errors.AuthorizationError(
+                    msg="The user has been locked, please contact the system administrator"
+                )
+            access_token = await create_access_token(
+                str(current_user.id), current_user.is_multi_login
+            )
             await user_dao.update_login_time(db, obj.username)
             return access_token.access_token, current_user
 
     @staticmethod
     async def login(
-        *, request: Request, response: Response, obj: AuthLoginParam, background_tasks: BackgroundTasks
+        *,
+        request: Request,
+        response: Response,
+        obj: AuthLoginParam,
+        background_tasks: BackgroundTasks,
     ) -> GetLoginToken:
         async with async_db_session.begin() as db:
             try:
                 current_user = await user_dao.get_by_username(db, obj.username)
                 if not current_user:
-                    raise errors.NotFoundError(msg='用户名或密码有误')
+                    raise errors.NotFoundError(msg="Username or password is incorrect")
                 user_uuid = current_user.uuid
                 username = current_user.username
-                if not password_verify(obj.password + current_user.salt, current_user.password):
-                    raise errors.AuthorizationError(msg='用户名或密码有误')
+                if not password_verify(
+                    obj.password + current_user.salt, current_user.password
+                ):
+                    raise errors.AuthorizationError(
+                        msg="Username or password is incorrect"
+                    )
                 elif not current_user.status:
-                    raise errors.AuthorizationError(msg='用户已被锁定, 请联系统管理员')
-                captcha_code = await redis_client.get(f'{admin_settings.CAPTCHA_LOGIN_REDIS_PREFIX}:{request.state.ip}')
+                    raise errors.AuthorizationError(
+                        msg="The user has been locked, please contact the system administrator"
+                    )
+                captcha_code = await redis_client.get(
+                    f"{admin_settings.CAPTCHA_LOGIN_REDIS_PREFIX}:{request.state.ip}"
+                )
                 if not captcha_code:
-                    raise errors.AuthorizationError(msg='验证码失效，请重新获取')
+                    raise errors.AuthorizationError(
+                        msg="The verification code is invalid, please obtain it again"
+                    )
                 if captcha_code.lower() != obj.captcha.lower():
                     raise errors.CustomError(error=CustomErrorCode.CAPTCHA_ERROR)
                 current_user_id = current_user.id
-                access_token = await create_access_token(str(current_user_id), current_user.is_multi_login)
-                refresh_token = await create_refresh_token(str(current_user_id), current_user.is_multi_login)
+                access_token = await create_access_token(
+                    str(current_user_id), current_user.is_multi_login
+                )
+                refresh_token = await create_refresh_token(
+                    str(current_user_id), current_user.is_multi_login
+                )
             except errors.NotFoundError as e:
                 raise errors.NotFoundError(msg=e.msg)
             except (errors.AuthorizationError, errors.CustomError) as e:
@@ -93,10 +116,12 @@ class AuthService:
                         username=username,
                         login_time=timezone.now(),
                         status=LoginLogStatusType.success.value,
-                        msg='登录成功',
+                        msg="登录成功",
                     ),
                 )
-                await redis_client.delete(f'{admin_settings.CAPTCHA_LOGIN_REDIS_PREFIX}:{request.state.ip}')
+                await redis_client.delete(
+                    f"{admin_settings.CAPTCHA_LOGIN_REDIS_PREFIX}:{request.state.ip}"
+                )
                 await user_dao.update_login_time(db, obj.username)
                 response.set_cookie(
                     key=settings.COOKIE_REFRESH_TOKEN_KEY,
@@ -117,19 +142,21 @@ class AuthService:
     async def new_token(*, request: Request, response: Response) -> GetNewToken:
         refresh_token = request.cookies.get(settings.COOKIE_REFRESH_TOKEN_KEY)
         if not refresh_token:
-            raise errors.TokenError(msg='Refresh Token 丢失，请重新登录')
+            raise errors.TokenError(msg="Refresh Token is lost, please log in again")
         try:
             user_id = jwt_decode(refresh_token)
         except Exception:
-            raise errors.TokenError(msg='Refresh Token 无效')
+            raise errors.TokenError(msg="Refresh Token is invalid")
         if request.user.id != user_id:
-            raise errors.TokenError(msg='Refresh Token 无效')
+            raise errors.TokenError(msg="Refresh Token is invalid")
         async with async_db_session() as db:
             current_user = await user_dao.get(db, user_id)
             if not current_user:
-                raise errors.NotFoundError(msg='用户名或密码有误')
+                raise errors.NotFoundError(msg="User does not exist")
             elif not current_user.status:
-                raise errors.AuthorizationError(msg='用户已被锁定, 请联系统管理员')
+                raise errors.AuthorizationError(
+                    msg="The user has been locked, please contact the system administrator"
+                )
             current_token = get_token(request)
             new_token = await create_new_token(
                 sub=str(current_user.id),
@@ -156,15 +183,15 @@ class AuthService:
         refresh_token = request.cookies.get(settings.COOKIE_REFRESH_TOKEN_KEY)
         response.delete_cookie(settings.COOKIE_REFRESH_TOKEN_KEY)
         if request.user.is_multi_login:
-            key = f'{settings.TOKEN_REDIS_PREFIX}:{request.user.id}:{token}'
+            key = f"{settings.TOKEN_REDIS_PREFIX}:{request.user.id}:{token}"
             await redis_client.delete(key)
             if refresh_token:
-                key = f'{settings.TOKEN_REFRESH_REDIS_PREFIX}:{request.user.id}:{refresh_token}'
+                key = f"{settings.TOKEN_REFRESH_REDIS_PREFIX}:{request.user.id}:{refresh_token}"
                 await redis_client.delete(key)
         else:
-            key_prefix = f'{settings.TOKEN_REDIS_PREFIX}:{request.user.id}:'
+            key_prefix = f"{settings.TOKEN_REDIS_PREFIX}:{request.user.id}:"
             await redis_client.delete_prefix(key_prefix)
-            key_prefix = f'{settings.TOKEN_REFRESH_REDIS_PREFIX}:{request.user.id}:'
+            key_prefix = f"{settings.TOKEN_REFRESH_REDIS_PREFIX}:{request.user.id}:"
             await redis_client.delete_prefix(key_prefix)
 
 

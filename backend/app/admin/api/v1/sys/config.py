@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
@@ -14,17 +12,19 @@ from backend.common.security.rbac import DependsRBAC
 router = APIRouter()
 
 
-@router.get('', summary='获取系统配置详情', dependencies=[DependsJwtAuth])
+@router.get(
+    "", summary="Get system configuration details", dependencies=[DependsJwtAuth]
+)
 async def get_config() -> ResponseModel:
     config = await config_service.get()
     return response_base.success(data=config)
 
 
 @router.post(
-    '',
-    summary='创建系统配置',
+    "",
+    summary="Create system configuration",
     dependencies=[
-        Depends(RequestPermission('sys:config:add')),
+        Depends(RequestPermission("sys:config:add")),
         DependsRBAC,
     ],
 )
@@ -34,14 +34,16 @@ async def create_config(obj: CreateConfigParam) -> ResponseModel:
 
 
 @router.put(
-    '/{pk}',
-    summary='更新系统配置',
+    "/{pk}",
+    summary="Update system configuration",
     dependencies=[
-        Depends(RequestPermission('sys:config:edit')),
+        Depends(RequestPermission("sys:config:edit")),
         DependsRBAC,
     ],
 )
-async def update_config(pk: Annotated[int, Path(...)], obj: UpdateConfigParam) -> ResponseModel:
+async def update_config(
+    pk: Annotated[int, Path(...)], obj: UpdateConfigParam
+) -> ResponseModel:
     count = await config_service.update(pk=pk, obj=obj)
     if count > 0:
         return response_base.success()
@@ -49,10 +51,10 @@ async def update_config(pk: Annotated[int, Path(...)], obj: UpdateConfigParam) -
 
 
 @router.delete(
-    '',
-    summary='（批量）删除系统配置',
+    "",
+    summary="Delete system configuration",
     dependencies=[
-        Depends(RequestPermission('sys:config:del')),
+        Depends(RequestPermission("sys:config:del")),
         DependsRBAC,
     ],
 )

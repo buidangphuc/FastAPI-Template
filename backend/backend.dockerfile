@@ -15,7 +15,7 @@ RUN apt-get update \
 RUN pip install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple \
     && pip install -r backend/requirements.txt -i https://mirrors.aliyun.com/pypi/simple
 
-ENV TZ = Asia/Shanghai
+ENV TZ = UTC
 
 RUN mkdir -p /var/log/fastapi_server
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from fastapi import Request
@@ -13,6 +11,7 @@ from backend.database.db_mysql import async_db_session
 
 
 class LoginLogService:
+
     @staticmethod
     async def get_select(*, username: str, status: int, ip: str) -> Select:
         return await login_log_dao.get_list(username=username, status=status, ip=ip)
@@ -46,7 +45,7 @@ class LoginLogService:
             )
             await login_log_dao.create(db, obj_in)
         except Exception as e:
-            log.error(f'登录日志创建失败: {e}')
+            log.error(f"Login log creation failed: {e}")
 
     @staticmethod
     async def delete(*, pk: list[int]) -> int:

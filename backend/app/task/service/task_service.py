@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from celery.exceptions import NotRegistered
 from celery.result import AsyncResult
 
@@ -8,12 +6,13 @@ from backend.common.exception.errors import NotFoundError
 
 
 class TaskService:
+
     @staticmethod
     def get_list():
         filtered_tasks = []
         tasks = celery_app.tasks
         for key, value in tasks.items():
-            if not key.startswith('celery.'):
+            if not key.startswith("celery."):
                 filtered_tasks.append({key, value})
         return filtered_tasks
 
@@ -26,7 +25,7 @@ class TaskService:
         try:
             result = AsyncResult(id=uid, app=celery_app)
         except NotRegistered:
-            raise NotFoundError(msg='任务不存在')
+            raise NotFoundError(msg="Task does not exist")
         return result.status
 
     @staticmethod
@@ -34,7 +33,7 @@ class TaskService:
         try:
             result = AsyncResult(id=uid, app=celery_app)
         except NotRegistered:
-            raise NotFoundError(msg='任务不存在')
+            raise NotFoundError(msg="Task does not exist")
         return result
 
     @staticmethod

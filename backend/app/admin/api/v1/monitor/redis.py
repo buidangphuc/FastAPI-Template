@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from fastapi import APIRouter, Depends
 
 from backend.common.response.response_schema import ResponseModel, response_base
@@ -11,13 +9,13 @@ router = APIRouter()
 
 
 @router.get(
-    '',
-    summary='redis 监控',
+    "",
+    summary="Get redis info",
     dependencies=[
-        Depends(RequestPermission('sys:monitor:redis')),
+        Depends(RequestPermission("sys:monitor:redis")),
         DependsJwtAuth,
     ],
 )
 async def get_redis_info() -> ResponseModel:
-    data = {'info': await redis_info.get_info(), 'stats': await redis_info.get_stats()}
+    data = {"info": await redis_info.get_info(), "stats": await redis_info.get_stats()}
     return response_base.success(data=data)
