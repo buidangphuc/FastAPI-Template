@@ -18,15 +18,25 @@
 │ ├─📁 middleware---------- # Middlewares
 │ ├─📁 scripts------------- # Scripts
 │ └─📁 utils--------------- # Toolkit
+├─📁 model----------------- # Training model
+│ ├─📁 data---------------- # Application
+│ │ ├─📁 external---------- # Data from third party sources.
+│ │ ├─📁 interim----------- # Intermediate data that has been transformed.
+│ │ ├─📁 processed--------- # The final, canonical data sets for modeling.
+│ │ ├─📁 raw--------------- # The original, immutable data dump.
+│ ├─📁 models-------------- # Trained and serialized models, model predictions, or model summaries
+│ ├─📁 notebooks----------- # Jupyter notebooks
+│ ├─📁 references---------- # Data dictionaries, manuals, and all other explanatory materials.
+│ ├─📁 reports------------- # Generated analysis as HTML, PDF, LaTeX, etc.
+│ │ ├─📁 figures----------- # Generated graphics and figures to be used in reporting
+│ ├─📁 ds------------------ # Application
+│ │ ├─📁 config.py--------- # Store config
+│ │ ├─📁 dataset.py-------- # Scripts to download or generate data
+│ │ ├─📁 features.py------- # Create features for modeling
+│ │ ├─📁 modeling---------- # The original, immutable data dump.
+│ │ | |─📁 __init__.py----- #
+│ │ | |─📁 predict.py------ # Code to run model inference with trained models  
+│ │ | |─📁 train.py-------- # Code to train models
+│ | |─📁 plots.py---------- # Code to create visualizations
+│ ├─📁 models-------------- # Trained and serialized models, model predictions, or model summaries
 └─📁 deploy---------------- # Server deployment
-```
-
-## Local development / Docker deployment
-
-For more details, please check
-the [official documentation](https://fastapi-practices.github.io/fastapi_best_architecture_docs/)
-
-## License
-
-This project is licensed by the terms of
-the [MIT](https://github.com/fastapi-practices/fastapi_best_architecture/blob/master/LICENSE) license
