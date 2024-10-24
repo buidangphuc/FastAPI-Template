@@ -21,12 +21,15 @@ fastapi-pagination = "^0.12.31"
 fastapi-limiter = "^0.1.6"
 asgi-correlation-id = "^4.3.4"
 pydantic-extra-types = "^2.9.0"
+tqdm = "^4.66.5"
 
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.13.2"
 ruff = "^0.7.0"
 pyink = "^24.10.0"
+flake8 = "^7.1.1"
+typer = "^0.12.5"
 
 [build-system]
 requires = ["poetry-core"]
